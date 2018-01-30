@@ -3,7 +3,7 @@ This module contains face detections functions.
 """
 import cv2
 
-faceCascade = cv2.CascadeClassifier('models/haarcascade_frontalface_default.xml')
+faceCascade = cv2.CascadeClassifier('haarcascade_files/haarcascade_frontalface_default.xml')
 
 def find_faces(image):
     faces_coordinates = _locate_faces(image)

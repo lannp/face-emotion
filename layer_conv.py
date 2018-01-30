@@ -13,7 +13,7 @@ sess = tf.Session()
 train_folder = "normalized_images"
 test_folder = "test"
 image_size=64
-emotions = ['neutral', 'anger', 'fear', 'happy', 'sadness', 'surprise']
+emotions = ['neutral','fear', 'happy', 'sadness', 'surprise']
 
 def load_sequence(folder):
     X = []
@@ -38,12 +38,12 @@ def random_batch(x_train, y_train, batch_size):
 def conv_net(x):
     with tf.variable_scope('ConvNet'):
         x = tf.reshape(x, shape=[-1, 64, 64, 1])
-        conv1 = tf.layers.conv2d(x, 32, 5, activation=tf.nn.relu, padding="SAME")
+        conv1 = tf.layers.conv2d(x, 8, 5, activation=tf.nn.relu, padding="SAME")
         conv1 = tf.layers.max_pooling2d(conv1, 2, 2, padding="SAME")
-        conv2 = tf.layers.conv2d(conv1, 64, 3, activation=tf.nn.relu, padding="SAME")
+        conv2 = tf.layers.conv2d(conv1, 16, 3, activation=tf.nn.relu, padding="SAME")
         conv2 = tf.layers.max_pooling2d(conv2, 2, 2, padding="SAME")
-        # conv3 = tf.layers.conv2d(conv2, 128, 5, activation=tf.nn.relu, padding="SAME")
-        # conv3 = tf.layers.max_pooling2d(conv3, 2, 2, padding="SAME")
+        conv3 = tf.layers.conv2d(conv2, 32, 5, activation=tf.nn.relu, padding="SAME")
+        conv3 = tf.layers.max_pooling2d(conv3, 2, 2, padding="SAME")
 
         fc1 = tf.contrib.layers.flatten(conv2)
         fc1 = tf.layers.dense(fc1, 1024, activation=tf.nn.relu)
@@ -66,7 +66,7 @@ y_test=labelencoder_X.transform(y_test)
 
 # Training Parameters
 learning_rate = 0.001
-num_steps = 200
+num_steps = 500
 batch_size = 128
 display_step = 10
 

@@ -1,6 +1,3 @@
-"""
-This module contains face detections functions.
-"""
 import cv2
 
 faceCascade = cv2.CascadeClassifier('haarcascade_files/haarcascade_frontalface_default.xml')

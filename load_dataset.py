@@ -2,7 +2,7 @@ import cv2, os, random, glob
 
 from face_detect import find_faces
 
-emotions = ['neutral', 'anger', 'fear', 'happy', 'sadness', 'surprise']
+emotions = ['neutral','fear', 'happy', 'sadness', 'surprise']
 for emotion in emotions:
     paths = glob.glob("data/%s/*" %(emotion))
     normalized_path = "normalized_images/%s/" %(emotion)
@@ -11,6 +11,14 @@ for emotion in emotions:
     test_path = "test/%s/" %(emotion)
     if not os.path.exists(test_path):
         os.makedirs(test_path)
+    print("Removing old dataset")
+    filelist = glob.glob("normalized_imagest/%s/*" % emotion)
+    for f in filelist:
+        os.remove(f)
+    filelist = glob.glob("test/%s/*" % emotion)
+    for f in filelist:
+        os.remove(f)
+
     number_random = int(len(paths) / 10)
     random_paths= random.sample(paths, number_random)
 

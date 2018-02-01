@@ -7,6 +7,7 @@ import tensorflow as tf
 import cv2
 import os
 from sklearn.preprocessing import LabelEncoder
+from face_detect import find_faces
 
 
 sess = tf.Session()
@@ -18,7 +19,7 @@ emotions = ['neutral','fear', 'happy', 'sadness', 'surprise']
 def load_sequence(folder):
     X = []
     name = []
-    for emotion in emotions:
+    for index, emotion in enumerate(emotions):
         sequence_folder = glob.glob(folder+ "/" +str(emotion)+ "/*")
 
         for path in sequence_folder:
@@ -26,7 +27,7 @@ def load_sequence(folder):
             img = cv2.resize(img, (image_size, image_size))
             img = np.reshape(img, (image_size*image_size))
             X.append(img)
-            name.append(emotion)
+            name.append(index)
     return X, name
 def random_batch(x_train, y_train, batch_size):
     rnd_indices = np.random.randint(0, len(x_train), batch_size)
@@ -37,12 +38,12 @@ def random_batch(x_train, y_train, batch_size):
 
 def conv_net(x):
     x = tf.reshape(x, shape=[-1, image_size, image_size, 1])
-    conv1 = tf.layers.conv2d(x, 64, 5, activation=tf.nn.relu,padding="SAME")
-    conv1 = tf.layers.max_pooling2d(conv1, 3, 2,padding="SAME")
-    conv2 = tf.layers.conv2d(conv1, 64, 5, activation=tf.nn.relu,padding="SAME")
-    conv2 = tf.layers.max_pooling2d(conv2, 3, 2,padding="SAME")
-    conv3 = tf.layers.conv2d(conv2, 128, 4, activation=tf.nn.relu,padding="SAME")
-    # conv3 = tf.layers.max_pooling2d(conv3, 2, 2,padding="SAME")
+    conv1 = tf.layers.conv2d(x, 16, 5, activation=tf.nn.relu,padding="SAME")
+    conv1 = tf.layers.max_pooling2d(conv1, 2, 2,padding="SAME")
+    conv2 = tf.layers.conv2d(conv1, 32, 5, activation=tf.nn.relu,padding="SAME")
+    conv2 = tf.layers.max_pooling2d(conv2, 2, 2,padding="SAME")
+    conv3 = tf.layers.conv2d(conv2, 64, 4, activation=tf.nn.relu,padding="SAME")
+    conv3 = tf.layers.max_pooling2d(conv3, 2, 2,padding="SAME")
 
     fc1 = tf.contrib.layers.flatten(conv3)
     fc1 = tf.layers.dense(fc1, 3072,activation=tf.nn.relu)
@@ -57,16 +58,14 @@ print(x_train.shape)
 x_test,y_test=load_sequence(test_folder)
 x_test=np.asarray(x_test) #.reshape((-1, 64, 64))
 y_test=np.asarray(y_test)
-print(x_test.shape)
-labelencoder_X=LabelEncoder()
-y_train = labelencoder_X.fit_transform(y_train)
-y_test=labelencoder_X.transform(y_test)
+
+
 
 # Parameters
 learning_rate = 0.001
 batch_size = 20
 display_step = 10
-num_steps=400
+num_steps=1000
 # Network Parameters
 n_input = image_size* image_size
 num_classes=len(emotions)
@@ -98,6 +97,8 @@ for step in range(1, num_steps+1):
     if step % display_step == 0 or step == 1:
         acc = sess.run( accuracy, feed_dict={x: x_train,y: y_train})
         test_acc=sess.run(accuracy, feed_dict={x: x_test,y: y_test})
+        if test_acc > 0.94:
+            save_path = saver.save(sess, "models/%s_cnn.ckpt" %(test_acc))
         print('Step:',step, ', Accuracy:',acc, ", Testing Accuracy:", test_acc)
 
 print("Optimization Finished!")
